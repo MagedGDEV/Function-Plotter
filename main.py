@@ -1,3 +1,3 @@
 from GUI import GUI
 
-gui = GUI(150, 500)
+gui = GUI(130, 500)

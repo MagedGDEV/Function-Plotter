@@ -1,6 +1,7 @@
 import tkinter
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from function import Function
 
  
 class GUI:
@@ -26,7 +27,8 @@ class GUI:
     figure: Figure
     graphCanvas : FigureCanvasTkAgg
 
-    done = False
+    messageLabelDrawn = False
+    graphDrawn = False
     
     def __init__ (self, canvasHeight, canvasWidth):
         
@@ -34,14 +36,14 @@ class GUI:
         self.width = canvasWidth
         self.guiSettings()
         self.textWidth = 200
-        self.minLabel = self.addLabel(20, 20, "minX")
-        self.minTextBox = self.addTextBox (65, 20 , 50)
-        self.maxLabel = self.addLabel(130, 20, "maxX")
-        self.maxTextBox = self.addTextBox (175, 20 , 50)
-        self.functionLabel = self.addLabel (23, 50, "F(y) = ")
-        self.functionTextBox = self.addTextBox(140, 50, self.textWidth)
+        self.minLabel = self.addLabel(30, 20, "minX")
+        self.minTextBox = self.addTextBox (75, 20 , 50)
+        self.maxLabel = self.addLabel(140, 20, "maxX")
+        self.maxTextBox = self.addTextBox (185, 20 , 50)
+        self.functionLabel = self.addLabel (33, 50, "F(y) = ")
+        self.functionTextBox = self.addTextBox(150, 50, self.textWidth)
         self.errorMessage = ""
-        self.addButton(130, 100)
+        self.addButton(140, 100)
         self.root.mainloop()
     
     # Add label to display the error for the user if there was invalid input
@@ -57,10 +59,22 @@ class GUI:
     
     # function that is going to be called when user press the button
     def checkUserInput (self):
-        errorMessage = "sdfsdfsdfadsfasdfadsfadfasdfdsafdsafasdfasdfasdfdasfsdfasdf"
-        self.messageLabel = self.addLabel (400, 30, errorMessage)
-        self.addGraph(self.functionTextBox.get(), int(self.minTextBox.get()), int (self.maxTextBox.get()))
-        self.done = True
+        
+        funcVerify = Function(self.functionTextBox.get(), self.minTextBox.get(), self.maxTextBox.get())
+        
+        if (self.messageLabelDrawn):
+            self.messageLabel.destroy()
+        
+        if (funcVerify.errorMessage == ""):
+            self.messageLabel = self.addLabel (400, 50, "Valid Input")
+            self.addGraph(funcVerify.equation, int(self.minTextBox.get()), int (self.maxTextBox.get()))
+            self.graphDrawn = True
+        else: 
+            self.messageLabel = self.addLabel (400, 50, funcVerify.errorMessage)
+            if (self.graphDrawn): 
+                self.graphCanvas.get_tk_widget().destroy()  
+                self.graphDrawn = False
+        self.messageLabelDrawn = True
         
     # Add textbox to take the user input from the user
     def addTextBox(self, positionX, positionY, textBoxWidth):
@@ -79,13 +93,13 @@ class GUI:
     def addGraph (self, equation, minValue, maxValue):
         
         # to remove the old graph and create new one
-        if (self.done): 
+        if (self.graphDrawn): 
             self.graphCanvas.get_tk_widget().destroy()
 
         self.figure = Figure(figsize = (10, 10),
                      dpi = 50)
         
-        
+        # evaluate the value of the function from the minimum to maximum entered
         y = []
         for x in range(minValue,maxValue + 1): 
             y.append(eval(equation))
